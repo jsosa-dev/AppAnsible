@@ -8,13 +8,53 @@
 <nord-card>
     <h2 slot="header">Parametros del nodo master</h2>
     <div class="flex justify-between">
-        <nord-input class="flex-grow" label="Direccion IP" value=""></nord-input>
-        <nord-input class="flex-grow" label="Usuario" value=""></nord-input>
-        <nord-input class="flex-grow" label="Contraseña" value=""></nord-input>
+        <nord-input id="ipInput" class="flex-grow" label="Direccion IP" value=""></nord-input>
+        <nord-input id="usernameInput" class="flex-grow" label="Usuario" value=""></nord-input>
+        <nord-input id="passwordInput" type="password" class="flex-grow" label="Contraseña" value=""></nord-input>
     </div>
     <div class="mt-2">
-        <nord-button href="#" variant="primary">Probar Conexion</nord-button>
+        <nord-button id="testConnectionBtn" variant="primary">Probar Conexion</nord-button>
     </div>
 </nord-card>
+
+<script>
+    document.getElementById('testConnectionBtn').addEventListener('click', function() {
+        var ip = document.getElementById('ipInput').value;
+        var username = document.getElementById('usernameInput').value;
+        var password = document.getElementById('passwordInput').value;
+
+        // Construir el objeto de datos para enviar como JSON
+        var data = {
+            ip: ip,
+            username: username,
+            password: password,
+            command: 'uname -a'  // Ejemplo de comando a ejecutar en el servidor remoto
+        };
+
+        // Realizar la solicitud POST al servidor Flask
+        fetch('/ssh', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Manejar la respuesta del servidor
+            if (data.success) {
+                alert('Conexión exitosa!');
+                alert(data.output);
+                console.log('Output:', data.output);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error al realizar la solicitud:', error);
+            alert('Error al realizar la conexión');
+        });
+    });
+</script>
 
 {% endblock %}
