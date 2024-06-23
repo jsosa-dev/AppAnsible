@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Ajustes{% endblock %}
+
+{% block header %}Ajustes{% endblock %}
+
+{% block content %}
+<nord-card>
+    <h2 slot="header">Parametros del nodo master</h2>
+    <div class="flex justify-between">
+        <nord-input class="flex-grow" label="Direccion IP" value=""></nord-input>
+        <nord-input class="flex-grow" label="Usuario" value=""></nord-input>
+        <nord-input class="flex-grow" label="Contraseña" value=""></nord-input>
+    </div>
+    <div class="mt-2">
+        <nord-button href="#" variant="primary">Probar Conexion</nord-button>
+    </div>
+</nord-card>
+
+{% endblock %}

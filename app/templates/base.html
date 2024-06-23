@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://nordcdn.net/ds/css/3.2.1/nord.min.css" integrity="sha384-x2XdCI8Yog7KGRmrrGLegjFrrIYXEhGNxql/xEXdMoW5NkpEhlAkUHdQJxkL1vPg" crossorigin="anonymous" />
+    <script type="module" src="https://nordcdn.net/ds/components/3.13.0/index.js" integrity="sha384-ff7LNA7yEz6r6VKmKOHIjznthVuDmIu1s/dlZZvhEdid7KKPbcN7sRtCUkNzglJC" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>{% block title %}Página{% endblock %}</title>
+</head>
+<body>
+    <nord-layout>
+        <nord-navigation slot="nav">
+          <nord-dropdown slot="header" expand>
+            <nord-button slot="toggle" expand>
+              <nord-avatar slot="start" name="Bath Clinic" variant="square">B</nord-avatar>
+              Bath Clinic
+            </nord-button>
+            <nord-dropdown-group heading="laura.williams@nordhealth.com">
+              <nord-dropdown-item>
+                <nord-avatar slot="start" name="Bath Clinic" size="s" variant="square">B</nord-avatar>
+                Bath Clinic
+                <nord-icon slot="end" name="interface-checked"></nord-icon>
+              </nord-dropdown-item>
+              <nord-dropdown-item>
+                <nord-avatar
+                  slot="start"
+                  name="Ocean Beach Clinic"
+                  size="s"
+                  variant="square"
+                  style="--n-avatar-color: var(--n-color-status-success)"
+                >
+                  O
+                </nord-avatar>
+                Ocean Beach Clinic
+              </nord-dropdown-item>
+              <nord-dropdown-item>
+                <nord-avatar
+                  slot="start"
+                  name="Park Animal Hospital"
+                  size="s"
+                  variant="square"
+                  style="--n-avatar-color: var(--n-color-status-highlight)"
+                >
+                  P
+                </nord-avatar>
+                Park Animal Hospital
+              </nord-dropdown-item>
+              <nord-dropdown-item>
+                <nord-avatar
+                  slot="start"
+                  name="Balboa Pet Hospital"
+                  size="s"
+                  variant="square"
+                  style="--n-avatar-color: var(--n-color-status-danger)"
+                >
+                  B
+                </nord-avatar>
+                Balboa Pet Hospital
+              </nord-dropdown-item>
+            </nord-dropdown-group>
+            <nord-dropdown-group>
+              <nord-dropdown-item>Add another clinic</nord-dropdown-item>
+              <nord-dropdown-item>Customize style</nord-dropdown-item>
+            </nord-dropdown-group>
+            <nord-dropdown-item>Sign out from all clinics</nord-dropdown-item>
+          </nord-dropdown>
+          <nord-nav-group heading="Workspace">
+            <nord-nav-item href="/dashboard" icon="navigation-dashboard">Dashboard</nord-nav-item>
+            <nord-nav-item href="/settings" icon="navigation-settings">Settings</nord-nav-item>
+          </nord-nav-group>
+          <nord-dropdown expand slot="footer">
+            <nord-button slot="toggle" expand>
+              <nord-avatar slot="start" aria-hidden="true" name="Laura Williams"></nord-avatar>
+              Laura Williams
+            </nord-button>
+            <nord-dropdown-group>
+              <nord-dropdown-item href="#">View profile</nord-dropdown-item>
+              <nord-dropdown-item>Settings</nord-dropdown-item>
+            </nord-dropdown-group>
+            <nord-dropdown-group>
+              <nord-dropdown-item>
+                Show keyboard shortcuts
+                <div slot="end" class="n-color-text-weaker n-font-size-xs">Cmd+K</div>
+              </nord-dropdown-item>
+              <nord-dropdown-item>Help & Support</nord-dropdown-item>
+              <nord-dropdown-item>API</nord-dropdown-item>
+            </nord-dropdown-group>
+            <nord-dropdown-item>
+              Sign out
+              <nord-icon slot="end" name="interface-logout"></nord-icon>
+            </nord-dropdown-item>
+          </nord-dropdown>
+        </nord-navigation>
+        <nord-header slot="header">
+          <h1 class="n-typescale-l">{% block header %}Header{% endblock %}</h1>
+          <nord-button variant="primary" slot="end">
+            <nord-icon slot="start" name="interface-add-small"></nord-icon>
+            Create new
+          </nord-button>
+          <nord-tooltip id="export" position="block-end"> Export data as Spreadsheet </nord-tooltip>
+        </nord-header>
+        <nord-stack gap="l">
+          {% block content %}{% endblock %}
+        </nord-stack>
+      </nord-layout>
+      <nord-command-menu></nord-command-menu>
+      
+      <script>
+        const layout = document.querySelector("nord-layout")
+        const commandMenu = document.querySelector("nord-command-menu")
+        commandMenu.commands = [
+          {
+            id: "toggle-nav",
+            title: "Toggle navigation",
+            icon: "navigation-toggle",
+            shortcut: "Alt+KeyL",
+            handler() {
+              layout.navOpen = !layout.navOpen
+            },
+          },
+        ]
+      
+        const navigation = document.querySelector("nord-navigation")
+      
+        // for demo purposes, activate nav items on click.
+        // in most cases you should instead integrate with your chosen router
+        navigation.addEventListener("click", e => {
+          if (e.target.matches("nord-nav-item") && e.target.href) {
+            e.target.active = true
+          }
+        })
+      </script>
+</body>
+</html>
