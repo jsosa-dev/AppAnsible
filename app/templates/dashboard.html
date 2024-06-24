@@ -5,10 +5,67 @@
 {% block header %}Dashboard{% endblock %}
 
 {% block content %}
-<nord-card>
-    <h2 slot="header">Dashboard Content</h2>
-    <nord-banner variant="success">
-        Dashboard details go here.
-    </nord-banner>
-</nord-card>
+
+<div class="flex flex-col h-full gap-y-4">
+    <div class="flex flex-1 gap-x-4">
+        <div class="flex-1">
+            <nord-card>
+                <div class="flex justify-between mb-4">
+                    <span>Lista de tareas</span>
+                    <nord-button variant="primary" slot="end" id="btnTask">
+                        <nord-icon slot="start" name="interface-add-small"></nord-icon>
+                        Agregar Tarea
+                    </nord-button> 
+                </div>
+                <div>
+                    <nord-banner id="bannerTask" variant="warning">
+                        No hay tareas agregadas
+                    </nord-banner>
+                </div>
+            </nord-card>
+        </div>
+        <div class="flex-1 ">
+            <nord-card>
+                <div class="flex justify-between mb-4">
+                    <span>Lista de Hosts</span>
+                    <nord-button id="btnHost" variant="primary" slot="end">
+                        <nord-icon slot="start" name="interface-add-small"></nord-icon>
+                        Agregar Host
+                    </nord-button> 
+                </div>
+                <div>
+                    <nord-banner id="bannerHost" variant="warning">
+                        No hay host's agregados    
+                    </nord-banner>
+                    <div id="hostBannersContainer"></div>
+                </div>
+            </nord-card>
+        </div>
+    </div>
+    <div class="flex-1 bg-blue-600">
+        <nord-card>
+            <div class="flex justify-between mb-4">
+                <span>Estado de las tareas</span>
+                <nord-button id="btnPlay" variant="primary" slot="end">
+                    <nord-icon slot="start" name="arrow-expand-right-small"></nord-icon>
+                    Ejecutar tareas
+                </nord-button> 
+            </div>
+            <nord-banner variant="success">
+                Dashboard details go here.
+            </nord-banner>
+        </nord-card>
+    </div>
+</div>
+
+{% include "components/modalTask.html" %}
+{% include "components/modalHost.html" %}
+
+<script>
+    btnPlay.addEventListener("click", e => {
+        alert("hola")
+    });
+</script>
+
+
 {% endblock %}

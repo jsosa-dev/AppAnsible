@@ -1,0 +1,27 @@
+<!-- templates/modal.html -->
+<nord-modal id="modalTask" size="l" aria-labelledby="title">
+    <h2 slot="header">Configurar Tareas</h2>
+    
+    <div class="flex gap-x-4">
+        <nord-select name="page-size" value="25" label="Seleccionar Tarea">
+            <option value="25">💠Cambiar hostname</option>
+            <option value="50">💠Cambiar Direccion IP</option>
+        </nord-select>
+        <nord-input label="Agregar parametros" value=""></nord-input>
+    </div>
+
+    <div class="flex mt-5">
+        <nord-textarea label="Comando a ejecutar" value=""></nord-textarea>
+    </div>
+
+    <nord-button-group slot="footer" variant="spaced">
+        <nord-button expand id="btnCancelTask">Cancelar</nord-button>
+        <nord-button expand id="btnConfirmTask" variant="primary" autofocus>Guardar</nord-button>
+    </nord-button-group>
+</nord-modal>
+
+<script>
+    btnTask.addEventListener("click", e => modalTask.showModal());
+    btnCancelTask.addEventListener("click", () => modalTask.close());
+    btnConfirmTask.addEventListener("click", () => modalTask.close());
+</script>
