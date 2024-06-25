@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 import paramiko
 
+from livereload import Server
+
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -46,4 +49,12 @@ def ssh_command():
         client.close()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(port=5000, debug=True, host="0.0.0.0")
+    app.debug = True  # Enable template auto-reload in Flask
+    server = Server(app.wsgi_app)
+    server.watch('templates/*.html')  # Watch for changes in all HTML templates
+    #server.serve()
+    server.serve(host='0.0.0.0', port=5000)  # Start the server with live reload
+
+
+    #app.run(debug=True)
