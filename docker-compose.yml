@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  web:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    #volumes:
+    #  - ./app:/main/app  # Mapea tu directorio local al directorio de la app en el contenedor
+    environment:
+      - FLASK_ENV=development  # Configura el entorno de desarrollo
+      - FLASK_APP=app  # Configura el entorno de desarrollo
+    develop:
+      watch:
+        - action: sync
+          path: ./app
+          target: /main
+      restart: always 
+      container_name: ansible-app
+
