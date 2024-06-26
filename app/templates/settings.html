@@ -8,6 +8,7 @@
 <nord-card>
     <h2 slot="header">Parametros del nodo master</h2>
     <div class="flex justify-between">
+        <nord-input id="nameInput" class="flex-grow" label="Nombre" value=""></nord-input>
         <nord-input id="ipInput" class="flex-grow" label="Direccion IP" value=""></nord-input>
         <nord-input id="usernameInput" class="flex-grow" label="Usuario" value=""></nord-input>
         <nord-input id="passwordInput" type="password" class="flex-grow" label="Contraseña" value=""></nord-input>
@@ -18,36 +19,50 @@
 </nord-card>
 
 <script>
-    document.getElementById('testConnectionBtn').addEventListener('click', function() {
-        var ip = document.getElementById('ipInput').value;
-        var username = document.getElementById('usernameInput').value;
-        var password = document.getElementById('passwordInput').value;
-
-        // Construir el objeto de datos para enviar como JSON
-        var data = {
-            ip: ip,
-            username: username,
-            password: password,
+    function getInputValues() {
+        return {
+            ip: document.getElementById('ipInput').value,
+            name: document.getElementById('nameInput').value,
+            username: document.getElementById('usernameInput').value,
+            password: document.getElementById('passwordInput').value,
             command: 'uname -a'  // Ejemplo de comando a ejecutar en el servidor remoto
         };
+    }
 
-        // Realizar la solicitud POST al servidor Flask
-        fetch('/ssh', {
+    function postData(url, data) {
+        return fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Manejar la respuesta del servidor
-            if (data.success) {
-                alert('Conexión exitosa!');
-                alert(data.output);
-                console.log('Output:', data.output);
+        }).then(response => response.json());
+    }
+
+    document.getElementById('testConnectionBtn').addEventListener('click', function() {
+        const data = getInputValues();
+
+        postData('/save', data)
+        .then(response => {
+            if (response.success) {
+                alert('Datos guardados correctamente!');
             } else {
-                alert('Error: ' + data.error);
+                alert('Error al guardar los datos: ' + response.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error al realizar la solicitud:', error);
+            alert('Error al guardar los datos');
+        });
+
+        postData('/ssh', data)
+        .then(response => {
+            if (response.success) {
+                alert('Conexión exitosa!');
+                alert(response.output);
+                console.log('Output:', response.output);
+            } else {
+                alert('Error: ' + response.error);
             }
         })
         .catch(error => {

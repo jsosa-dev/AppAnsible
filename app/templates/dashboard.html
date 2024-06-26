@@ -61,10 +61,29 @@
 {% include "components/modalTask.html" %}
 {% include "components/modalHost.html" %}
 
+<script src="/static/utils.js"></script>
 <script>
+    const btnPlay = document.getElementById("btnPlay");
+
     btnPlay.addEventListener("click", e => {
-        alert("hola")
+        const nodes = document.getElementById("nodes");
+        const selectedOption = nodes.options[nodes.selectedIndex];
+        const node = selectedOption.value;
+        console.log("nodo seleccionado: " + node);
+
+
+        postData('/ssh', { name: node, command: "hostname" })
+            .then(response => {
+                alert("Respuesta del servidor: " + JSON.stringify(response));
+                // Aquí puedes manejar la respuesta del servidor como desees
+            })
+            .catch(error => {
+                console.error('Error al enviar datos:', error);
+        });
+
     });
+
+
 </script>
 
 
