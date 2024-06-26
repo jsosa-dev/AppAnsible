@@ -5,10 +5,9 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
+    image: jsosa12800/ansible-web:latest
     ports:
       - "5000:5000"
-    #volumes:
-    #  - ./app:/main/app  # Mapea tu directorio local al directorio de la app en el contenedor
     environment:
       - FLASK_ENV=development  # Configura el entorno de desarrollo
       - FLASK_APP=app  # Configura el entorno de desarrollo
@@ -20,3 +19,17 @@ services:
       restart: always 
       container_name: ansible-app
 
+  # New MongoDB service definition
+  mongo:
+    image: mongo:latest
+    #restart: always  # Restart container on failure
+    ports:
+      - "27017:27017"  # Map container port 27017 to host port 27017
+    volumes:
+      - mongo-data:/data/db  # Persist data using a named volume
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root  # Optional: Set a root username (not recommended in production)
+      - MONGO_INITDB_ROOT_PASSWORD=example  # Optional: Set a root password (not recommended in production)
+
+volumes:
+  mongo-data:  # Define the named volume for persistent data
