@@ -45,13 +45,13 @@
     <div class="flex-1 bg-blue-600">
         <nord-card>
             <div class="flex justify-between mb-4">
-                <span>Estado de las tareas</span>
+                <span>Salida de Ansible</span>
                 <nord-button id="btnPlay" variant="primary" slot="end">
                     <nord-icon slot="start" name="arrow-expand-right-small"></nord-icon>
                     Ejecutar tareas
                 </nord-button> 
             </div>
-            <nord-banner variant="success">
+            <nord-banner variant="success" id="logMessage">
                 Dashboard details go here.
             </nord-banner>
         </nord-card>
@@ -69,13 +69,16 @@
         const nodes = document.getElementById("nodes");
         const selectedOption = nodes.options[nodes.selectedIndex];
         const node = selectedOption.value;
+        const logMessage = document.getElementById("logMessage");
         console.log("nodo seleccionado: " + node);
 
-
-        postData('/ssh', { name: node, command: "hostname" })
+        logMessage.innerHTML = "";
+        
+        postData('/ex_playbook', { name: node, command: "hostname" })
             .then(response => {
-                alert("Respuesta del servidor: " + JSON.stringify(response));
-                // Aquí puedes manejar la respuesta del servidor como desees
+                console.log(response);                
+                logMessage.innerHTML = response.replace(/\n/g, "<br>"); // Reemplaza saltos de línea con etiquetas <br> para el formato HTML
+                logMessage.setAttribute("variant", "success"); // Cambia el estilo del banner según la respuesta
             })
             .catch(error => {
                 console.error('Error al enviar datos:', error);

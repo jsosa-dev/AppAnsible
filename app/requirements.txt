@@ -3,3 +3,5 @@ paramiko
 watchdog
 livereload
 pymongo
+ansible
+ansible-runner

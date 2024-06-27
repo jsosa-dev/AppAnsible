@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, make_response
 import paramiko
 from pymongo import MongoClient
 from livereload import Server
+import ansible_runner
+import subprocess
+
 
 app = Flask(__name__)
 
@@ -78,6 +81,70 @@ def ssh_command():
         return jsonify({'success': False, 'error': f'SSH connection error: {str(e)}'})
     finally:
         client.close()
+
+@app.route('/ex_playbook', methods=['POST'])
+def execute_playbook():
+    # Obtener el nombre del cuerpo de la solicitud POST
+    name = request.json.get('name')
+    command = request.json.get('command')
+
+    # Buscar los datos de conexión en la base de datos
+    record = collection.find_one({"name": name})
+
+    if not record:
+        return jsonify({'success': False, 'error': 'Registro no encontrado'})
+
+    ip = record['ip']
+    username = record['username']
+    password = record['password']
+
+    try:
+
+        subprocess.run(['apt-get', 'update'], check=True)
+        subprocess.run(['apt-get', 'install', 'sshpass'], check=True)
+  
+        # Definir la tarea de Ansible
+        tasks = [
+            {
+                'name': 'Obtener hostname',
+                'hosts': 'all',
+                'gather_facts': 'no',
+                'tasks': [
+                    {
+                        'name': 'Ejecutar comando hostname',
+                        'command': command
+                    }
+                ]
+            }
+        ]
+
+        # Definir el inventario dinámico
+        inventory = {
+            'all': {
+                'hosts': {
+                    ip: {
+                        'ansible_user': username,
+                        'ansible_ssh_pass': password,
+                        'ansible_ssh_common_args': '-o StrictHostKeyChecking=no'
+                    }
+                }
+            }
+        }
+
+        # Ejecutar la tarea de Ansible
+        result = ansible_runner.run(
+            private_data_dir='/tmp/', 
+            inventory=inventory, 
+            playbook=tasks,
+            quiet=False,)
+
+        resultado = result.stdout
+        response = make_response(resultado)
+        response.headers['Content-Type'] = 'text/plain'
+        return response
+
+    except Exception as e:
+        return jsonify({'success': False, 'errores': str(e)})
 
 if __name__ == '__main__':
     app.debug = True  # Enable template auto-reload in Flask
