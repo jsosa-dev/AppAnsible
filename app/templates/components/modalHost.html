@@ -1,35 +1,30 @@
-<!-- templates/modal.html -->
 <nord-modal id="modalHost" size="l" aria-labelledby="title">
     <h2 slot="header">Configurar Hosts</h2>
-    
-    <div class="flex flex-col space-y-4 gap-x-4">
 
-        <div class="flex">
-            <nord-fieldset label="Seleccione el origen de host">
-                <nord-stack direction="horizontal">
-                  <nord-radio label="Usar archivo host de ansible" checked name="hostSource" value="ansible" id="radioAnsible"></nord-radio>
-                  <nord-radio label="Definir host personalizados" name="hostSource" value="custom" id="radioCustom"></nord-radio>
-                </nord-stack>
-            </nord-fieldset>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 px-4 py-2">
+        <!-- Primera columna (60%) -->
+        <div class="col-span-3 rounded-md">
+            <div class="flex flex-col space-y-4">
+                {% for host in hosts %}
+                <div id="{{ host._id }}" data-ip="{{ host.ip }}"
+                    class="flex items-center justify-between px-4 py-2 bg-gray-200">
+                    <div>
+                        <nord-badge variant="success">Nombre: {{ host.name }}</nord-badge>
+                        <nord-badge variant="info">IP: {{ host.ip }}</nord-badge>
+                    </div>
+                    <nord-button variant="primary" size="sm" class="btn-agregar-host">
+                        <nord-icon name="interface-add-small"></nord-icon> Agregar
+                    </nord-button>
+                </div>
+                {% endfor %}
+            </div>
         </div>
 
-        <div id="divCustomHost" class="flex flex-col space-y-4 hidden">
-
-            <div>
-                <nord-input id="inputIpAddress" label="Direccion IP" placeholder="ex: 10.10.10.1 || 10.10.10.0/24" value=""></nord-input>
-            </div>
-    
-            <div class="flex">
-                <nord-checkbox label="Usar contraseña del nodo master" checked value="Value" id="chkUseMasterPassword"></nord-checkbox>
-            </div>
-    
-            <div class="flex gap-4">
-                <nord-input label="Usuario" disabled placeholder="ex: root" value="" id="inputUser"></nord-input>
-                <nord-input label="Contraseña" disabled placeholder="ex: xRts!%3w" value="" id="inputPassword"></nord-input>
-            </div>
-
+        <!-- Segunda columna (40%) -->
+        <div class="col-span-2 bg-gray-200 rounded-md">
+            <!-- Contenido de la segunda columna aquí -->
+            <div id="hostBannersContainer"></div>
         </div>
-
     </div>
 
     <nord-button-group slot="footer" variant="spaced">
@@ -39,91 +34,29 @@
 </nord-modal>
 
 <script>
-    const radioAnsible = document.getElementById('radioAnsible');
-    const radioCustom = document.getElementById('radioCustom');
-    const divCustomHost = document.getElementById('divCustomHost');
-    const chkUseMasterPassword = document.getElementById('chkUseMasterPassword');
-    const inputUser = document.getElementById('inputUser');
-    const inputPassword = document.getElementById('inputPassword');
-    const bannerHost = document.getElementById('bannerHost');
-
-    var hostArray = [];
-
-    // Ocultar divCustomHost por defecto
-    divCustomHost.classList.add('hidden');
-
-    // Evento para mostrar u ocultar divCustomHost según la selección
-    radioAnsible.addEventListener('change', () => {
-        divCustomHost.classList.add('hidden');
-    });
-
-    radioCustom.addEventListener('change', () => {
-        divCustomHost.classList.remove('hidden');
-    });
-
-    // Evento para deshabilitar/activar inputs cuando se marca/desmarca el checkbox
-    chkUseMasterPassword.addEventListener('change', () => {
-        if (chkUseMasterPassword.checked) {
-            inputUser.disabled = true;
-            inputPassword.disabled = true;
-        } else {
-            inputUser.disabled = false;
-            inputPassword.disabled = false;
-        }
-    });
-
     // Eventos para mostrar y cerrar el modal
+    const modalHost = document.getElementById('modalHost');
+    const btnHost = document.getElementById('btnHost');
+    const btnCancelHost = document.getElementById('btnCancelHost');
+    const btnConfirmHost = document.getElementById('btnConfirmHost');
+
     btnHost.addEventListener("click", e => modalHost.showModal());
-    btnCancelHost.addEventListener("click", () => {
-        modalHost.close();
-        // Restaurar estado oculto de divCustomHost al cerrar el modal
-        divCustomHost.classList.add('hidden');
-        radioAnsible.checked = true;
+    btnCancelHost.addEventListener("click", () => modalHost.close());
+    btnConfirmHost.addEventListener("click", () => modalHost.close());
+
+    document.querySelectorAll('.btn-agregar-host').forEach(button => {
+        button.addEventListener('click', function () {
+            const ip = this.closest('div').getAttribute('data-ip');
+            const container = document.getElementById('hostBannersContainer');
+            
+            const banner = document.createElement('nord-banner');
+            banner.setAttribute('variant', 'info');
+            banner.innerHTML = `IP: ${ip} <a href="#">Learn more</a>`;            
+            container.appendChild(banner);
+
+            // Eliminar el host del modal
+            if (document.getElementById('bannerHost')) document.getElementById('bannerHost').remove();
+            this.closest('div').remove();
+        });
     });
-    btnConfirmHost.addEventListener("click", () => {
-        
-        const ipAddress = document.getElementById('inputIpAddress').value;
-        
-        // Crear un nuevo nord-banner con la dirección IP ingresada
-        const newBanner = document.createElement('div');
-        newBanner.classList.add(
-            'flex', 
-            'text-[#117627]',
-            'items-center', 
-            'justify-between', 
-            'bg-[#EBF9EB]', 
-            'p-3', 
-            'border-2', 
-            'border-[#B6DDB9]',
-            'rounded-md'
-            );
-    
-        bannerHost.classList.add('hidden');
-
-        // Contenido del banner (dirección IP y botón eliminar)
-        newBanner.innerHTML = `
-            <i class="fa-solid fa-circle-check"></i>
-            <p class="text-sm">IP: ${ipAddress}</p>
-            <button class="ml-2 text-red-500" onclick="removeBanner(this)">Eliminar</button>
-        `;
-
-        // Agregar el nuevo banner al contenedor
-        hostBannersContainer.appendChild(newBanner);
-
-        if (!hostArray.includes(ipAddress)) {
-            hostArray.push(ipAddress);
-          } else {
-            console.log(`${ipAddress} ya está en el array.`);
-          }
-
-        console.log("Inventario:", hostArray)
-
-        modalHost.close();
-    });
-
-    // Función para eliminar un banner
-    function removeBanner(btn) {
-        const bannerToRemove = btn.parentNode;
-        hostBannersContainer.removeChild(bannerToRemove);
-    }
 </script>

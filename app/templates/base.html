@@ -17,8 +17,8 @@
             <div class="flex flex-row items-center">
               <span class="mr-2">Nodo:</span>
               <select name="node" id="nodes" value="" class="flex-1 w-[150px] h-[30px] border border-2 rounded-[10px]">
-                {% for name in names %}
-                  <option value="{{ name }}"> 🌐 {{ name }}</option>
+                {% for host in hosts %}
+                  <option value="{{ host }}"> 🌐 {{ host }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -26,7 +26,8 @@
 
           <nord-nav-group heading="Workspace" class="mt-[50px]">
             <nord-nav-item href="/dashboard" icon="navigation-dashboard">Dashboard</nord-nav-item>
-            <nord-nav-item href="/settings" icon="navigation-settings">Settings</nord-nav-item>
+            <nord-nav-item href="/inventory" icon="interface-globe">Inventario</nord-nav-item>
+            <nord-nav-item href="/task" icon="generic-keyboard">Tareas</nord-nav-item>
           </nord-nav-group>
           <nord-dropdown expand slot="footer">
             <nord-button slot="toggle" expand>
