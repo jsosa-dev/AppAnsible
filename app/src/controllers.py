@@ -6,6 +6,7 @@ import yaml
 from cryptography.fernet import Fernet
 import base64
 import os
+import re
 import uuid
 from config.db import Database
 from bson import ObjectId
@@ -22,7 +23,23 @@ db = Database()
 collection_host = "hosts"
 collection_task = "tasks"
 
-resp = ""
+def initialize_default_data():
+    print("Se inserta informacion de inicio")
+    default_task = [
+        {"name": "Obtener version de python", "path": "27d7d7ee-52a0-4ede-93dc-f5a74eb6d79f.yml"},
+        {"name": "Obtener la hora del servidor", "path": "354a9613-59d8-4b84-bd4c-970fa10d8b1f.yml"},
+        {"name": "Obtener hostname del servidor", "path": "e42d12a9-010a-4f70-8d46-8dfc6e6ae338.yml"},
+    ]
+
+    for task_data in default_task:
+        existing_host = db.find_one(collection_task, {"name": task_data["name"]})
+        if not existing_host:
+            db.insert_one(collection_task, {
+                "name": task_data["name"],
+                "path": task_data["path"],
+            })
+
+initialize_default_data()
 
 def index():
     return render_template('index.html')
@@ -107,6 +124,8 @@ def allowed_file(filename):
 
 def save_task():
     name = request.form.get('name')
+    hosts = request.form.get('hosts')  # Assuming you get the hosts dynamically
+
     if 'file' in request.files:
         file = request.files['file']
         if file.filename == '':
@@ -114,20 +133,34 @@ def save_task():
         if file:
             filename = str(uuid.uuid4()) + '.yml'
             file.save(os.path.join(UPLOAD_FOLDER, filename))
+
+            # Read the YAML content to modify hosts section
+            with open(os.path.join(UPLOAD_FOLDER, filename), 'r') as f:
+                yaml_content = f.read()
+
+            # Modify the hosts section dynamically
+            # yaml_content = yaml_content.replace('hosts: tu_servidor', f'hosts: web-inventory')
+            yaml_content = re.sub(r'^\s*hosts:\s+.+$', f'  hosts: web_inventory', yaml_content, flags=re.MULTILINE)
+            # Write the modified content back to the file
+            with open(os.path.join(UPLOAD_FOLDER, filename), 'w') as f:
+                f.write(yaml_content)
+
             db.insert_one(collection_task, {"name": name, "path": filename})
             return jsonify({"message": "Archivo cargado y guardado exitosamente"}), 200
+
     return jsonify({"error": "No se proporcionó archivo"}), 400
 
 def execute_playbook():
+
     try:
+        resultado = ""
         tasks = request.json.get('tasks')
-        hosts = request.json.get('hosts')
-        
+        hosts = request.json.get('hosts')        
         if not tasks:
             return jsonify({"error": "No tasks provided"}), 400
 
         with open(PATH_INVENTORY, 'w', encoding='utf-8') as host_file:
-            host_file.write('[web-inventory]\n')
+            host_file.write('[web_inventory]\n')
             for host in hosts:
                 ip = host['ip']
                 host_id = host['id']
@@ -157,14 +190,18 @@ def execute_playbook():
             stderr = result.stderr.strip()
 
             if result.returncode == 0:
-                results.append({"task": task, "status": "success", "stdout": stdout})
-
-                resultado = result.stdout
+                results.append(result.stdout)
+                
+                #resultado = result.stdout
+                resultado += result.stdout 
                 respo = make_response(resultado)
                 respo.headers['Content-Type'] = 'text/plain'
 
             else:
                 results.append({"task": task, "status": "error", "stderr": stderr})
+                respo = make_response(results)
+                respo.headers['Content-Type'] = 'text/plain'
+
         return respo
 
     except Exception as e:

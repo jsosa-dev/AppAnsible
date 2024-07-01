@@ -1,5 +1,5 @@
 - gather_facts: true
-  hosts: web-inventory
+  hosts: web_inventory
   name: Obtener versión de Python en el servidor remoto
   tasks:
   - command: python --version

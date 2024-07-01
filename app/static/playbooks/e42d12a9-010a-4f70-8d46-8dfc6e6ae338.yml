@@ -1,0 +1,11 @@
+---
+- name: Obtener hostnames de servidores
+  hosts: web_inventory
+  tasks:
+    - name: Obtener hostname
+      command: hostname
+      register: hostname_output
+
+    - name: Mostrar hostname
+      debug:
+        msg: "Hostname de {{ inventory_hostname }} es {{ hostname_output.stdout }}"

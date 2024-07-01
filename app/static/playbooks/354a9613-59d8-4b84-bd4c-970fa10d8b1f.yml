@@ -1,0 +1,13 @@
+---
+- name: Playbook para obtener la hora
+  hosts: web_inventory
+  gather_facts: yes
+
+  tasks:
+    - name: Obtener la fecha y hora actual
+      command: date
+      register: fecha_hora
+
+    - name: Mostrar la fecha y hora obtenida
+      debug:
+        msg: "La fecha y hora actual es {{ fecha_hora.stdout }}"
