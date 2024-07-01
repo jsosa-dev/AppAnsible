@@ -3,11 +3,19 @@ import paramiko
 import ansible_runner
 import subprocess
 import yaml
-#import json
+from cryptography.fernet import Fernet
+import base64
 import os
 import uuid
 from config.db import Database
 from bson import ObjectId
+from dotenv import load_dotenv
+
+load_dotenv()
+
+key = os.getenv('KEY')
+cipher_suite = Fernet(key)
+cipher_suite = Fernet(key)
 
 db = Database()
 
@@ -35,13 +43,14 @@ def save_host():
     username = request.json.get('username')
     password = request.json.get('password')
     name = request.json.get('name')
+    encrypted_password = cipher_suite.encrypt(password.encode('utf-8'))
 
     # Guardar los datos en la base de datos
     db.insert_one(collection_host, {
         "name": name,
         "ip": ip,
         "username": username,
-        "password": password,
+        "password": encrypted_password.decode('utf-8'),
     })
 
     return jsonify({'success': True, 'message': 'Datos guardados correctamente'})
@@ -86,6 +95,7 @@ def ssh_command():
 
 UPLOAD_FOLDER = 'static/playbooks'
 ALLOWED_EXTENSIONS = {'yml', 'yaml'} 
+PATH_INVENTORY = 'static/playbooks/host.ini'
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -116,7 +126,7 @@ def execute_playbook():
         if not tasks:
             return jsonify({"error": "No tasks provided"}), 400
 
-        with open("static/playbooks/host.ini", 'w', encoding='utf-8') as host_file:
+        with open(PATH_INVENTORY, 'w', encoding='utf-8') as host_file:
             host_file.write('[web-inventory]\n')
             for host in hosts:
                 ip = host['ip']
@@ -124,11 +134,13 @@ def execute_playbook():
                 db_host = db.find_one('hosts', {'_id': ObjectId(host_id)})
                 if db_host:
                     username = db_host.get('username', 'root')  # usuario por defecto si no se encuentra
-                    password = db_host.get('password', 'root')  # contraseña por defecto si no se encuentra
+                    encrypted_password = db_host.get('password')
+                    decrypted_password = cipher_suite.decrypt(encrypted_password.encode('utf-8')).decode('utf-8')
+                    #password = db_host.get('password', 'root')  # contraseña por defecto si no se encuentra
+                    host_file.write(f"{ip} ansible_user={username} ansible_ssh_pass={decrypted_password}\n")        
+
                 else:
                     return jsonify({"error": f"Host with ID {host_id} not found"}), 404
-                host_file.write(f"{ip} ansible_user={username} ansible_ssh_pass={password}\n")
-        
         results = []
 
         for task in tasks:
@@ -137,7 +149,7 @@ def execute_playbook():
             ansible_command = [
                 'ansible-playbook',
                 playbook_path,
-                '-i', 'static/playbooks/host.ini',
+                '-i', PATH_INVENTORY,
             ]
 
             result = subprocess.run(ansible_command, capture_output=True, text=True)
@@ -153,9 +165,11 @@ def execute_playbook():
 
             else:
                 results.append({"task": task, "status": "error", "stderr": stderr})
-
-        print("RESP::" + str(respo))
         return respo
 
     except Exception as e:
         return jsonify({'success': False, 'errores': str(e)})
+
+    finally:
+        if os.path.exists(PATH_INVENTORY):
+            os.remove(PATH_INVENTORY)
