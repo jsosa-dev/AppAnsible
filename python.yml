@@ -1,0 +1,13 @@
+---
+- name: Obtener versión de Python en el servidor remoto
+  hosts: lin
+  gather_facts: yes
+
+  tasks:
+    - name: Obtener versión de Python
+      command: python --version  # Comando para obtener la versión de Python
+      register: python_version
+
+    - debug:
+        msg: "La versión de Python en el servidor es {{ python_version.stdout }}"
+

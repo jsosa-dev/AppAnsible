@@ -2,19 +2,29 @@ from flask import render_template, request, jsonify, make_response
 import paramiko
 import ansible_runner
 import subprocess
+import yaml
+#import json
+import os
+import uuid
 from config.db import Database
+from bson import ObjectId
 
 db = Database()
 
 collection_host = "hosts"
+collection_task = "tasks"
 
 def index():
     return render_template('index.html')
 
 def dashboard():
-
     hosts = list(db.find_all('hosts'))
-    return render_template('dashboard.html', hosts=hosts)
+    tasks = list(db.find_all('tasks'))
+    return render_template('dashboard.html', hosts=hosts, tasks=tasks)
+
+def task():
+    return render_template('task.html')
+
 
 def inventory():
     return render_template('inventory.html')
@@ -35,15 +45,6 @@ def save_host():
     })
 
     return jsonify({'success': True, 'message': 'Datos guardados correctamente'})
-
-def save_group():
-    name = request.json.get('name')
-    db.insert_one(collection_group, {
-        "name": name,
-    })
-
-    return jsonify({'success': True, 'message': 'Datos guardados correctamente'})
-
 
 def ssh_command():
     # Obtener el nombre del cuerpo de la solicitud POST
@@ -82,64 +83,79 @@ def ssh_command():
     finally:
         client.close()
 
-def execute_playbook():
-    # Obtener el nombre del cuerpo de la solicitud POST
+
+UPLOAD_FOLDER = 'static/playbooks'
+ALLOWED_EXTENSIONS = {'yml', 'yaml'} 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_task():
+    content = request.json.get('content')
     name = request.json.get('name')
-    command = request.json.get('command')
+    if content:
+        data = yaml.safe_load(content)
+        filename = str(uuid.uuid4()) + '.yml'
+        db.insert_one(collection_task, {"name": name, "path" : filename})
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        
+        for task in data:
+            if 'hosts' in task:
+                task['hosts'] = 'web-inventory'
 
-    # Buscar los datos de conexión en la base de datos
-    record = db.find_one(collection_name, {"name": name})
+        with open(filepath, 'w', encoding='utf-8') as file:
+            yaml.dump(data, file, allow_unicode=True)
+        return jsonify({"message": "Archivo cargado y guardado exitosamente"}), 200
+    return jsonify({"error": "No se proporcionó contenido"}), 400
 
-    if not record:
-        return jsonify({'success': False, 'error': 'Registro no encontrado'})
 
-    ip = record['ip']
-    username = record['username']
-    password = record['password']
-
+def execute_playbook():
     try:
-        subprocess.run(['apt-get', 'update'], check=True)
-        subprocess.run(['apt-get', 'install', 'sshpass'], check=True)
-  
-        # Definir la tarea de Ansible
-        tasks = [
-            {
-                'name': 'Obtener hostname',
-                'hosts': 'all',
-                'gather_facts': 'no',
-                'tasks': [
-                    {
-                        'name': 'Ejecutar comando hostname',
-                        'command': command
-                    }
-                ]
-            }
-        ]
+        tasks = request.json.get('tasks')
+        hosts = request.json.get('hosts')
+        
+        if not tasks:
+            return jsonify({"error": "No tasks provided"}), 400
 
-        # Definir el inventario dinámico
-        inventory = {
-            'all': {
-                'hosts': {
-                    ip: {
-                        'ansible_user': username,
-                        'ansible_ssh_pass': password,
-                        'ansible_ssh_common_args': '-o StrictHostKeyChecking=no'
-                    }
-                }
-            }
-        }
+        with open("static/playbooks/host.ini", 'w', encoding='utf-8') as host_file:
+            host_file.write('[web-inventory]\n')
+            for host in hosts:
+                ip = host['ip']
+                host_id = host['id']
+                db_host = db.find_one('hosts', {'_id': ObjectId(host_id)})
+                if db_host:
+                    username = db_host.get('username', 'root')  # usuario por defecto si no se encuentra
+                    password = db_host.get('password', 'root')  # contraseña por defecto si no se encuentra
+                else:
+                    return jsonify({"error": f"Host with ID {host_id} not found"}), 404
+                host_file.write(f"{ip} ansible_user={username} ansible_ssh_pass={password}\n")
+        
+        results = []
 
-        # Ejecutar la tarea de Ansible
-        result = ansible_runner.run(
-            private_data_dir='/tmp/', 
-            inventory=inventory, 
-            playbook=tasks,
-            quiet=False,)
+        for task in tasks:
+            playbook_path = "static/playbooks/" + task['path']
 
-        resultado = result.stdout
-        response = make_response(resultado)
-        response.headers['Content-Type'] = 'text/plain'
-        return response
+            ansible_command = [
+                'ansible-playbook',
+                playbook_path,
+                '-i', 'static/playbooks/host.ini',
+            ]
+
+            result = subprocess.run(ansible_command, capture_output=True, text=True)
+            stdout = result.stdout.strip()
+            stderr = result.stderr.strip()
+
+            if result.returncode == 0:
+                results.append({"task": task, "status": "success", "stdout": stdout})
+
+                resultado = result.stdout
+                respo = make_response(resultado)
+                respo.headers['Content-Type'] = 'text/plain'
+
+            else:
+                results.append({"task": task, "status": "error", "stderr": stderr})
+
+        print("RESP::" + str(respo))
+        return respo
 
     except Exception as e:
         return jsonify({'success': False, 'errores': str(e)})

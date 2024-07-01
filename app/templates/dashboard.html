@@ -18,7 +18,7 @@
                     </nord-button> 
                 </div>
                 <div>
-                    <nord-banner id="bannerTask" variant="warning">
+                    <nord-banner id="bannerTask" variant="info">
                         No hay tareas agregadas
                     </nord-banner>
                     <div id="taskBannersContainer"></div>
@@ -35,7 +35,7 @@
                     </nord-button> 
                 </div>
                 <div>
-                    <nord-banner id="bannerHost" variant="warning">
+                    <nord-banner id="bannerHost" variant="info">
                         No hay host's agregados    
                     </nord-banner>
                     <div id="hostBannersContainer"></div>
@@ -43,7 +43,7 @@
             </nord-card>
         </div>
     </div>
-    <div class="flex-1 bg-blue-600">
+    <div class="flex flex-1 bg-blue-600">
         <nord-card>
             <div class="flex justify-between mb-4">
                 <span>Salida de Ansible</span>
@@ -52,9 +52,13 @@
                     Ejecutar tareas
                 </nord-button> 
             </div>
-            <nord-banner variant="success" id="logMessage">
-                Dashboard details go here.
-            </nord-banner>
+
+            <div class="flex flex-col items-center justify-center">
+                <nord-banner id="logMessage" variant="info" class="w-full">
+                    Visualice la salida del playbook <a href="https://docs.ansible.com/">Ayuda de Ansible</a>.
+                </nord-banner>            
+                <img src="static/img/loader.gif" id="loader" class="w-1/5 h-1/5 hidden">
+            </div>
         </nord-card>
     </div>
 </div>
@@ -62,33 +66,7 @@
 {% include "components/modalTask.html" %}
 {% include "components/modalHost.html" %}
 
-<script src="/static/utils.js"></script>
-<script>
-    const btnPlay = document.getElementById("btnPlay");
-
-    btnPlay.addEventListener("click", e => {
-        const nodes = document.getElementById("nodes");
-        const selectedOption = nodes.options[nodes.selectedIndex];
-        const node = selectedOption.value;
-        const logMessage = document.getElementById("logMessage");
-        console.log("nodo seleccionado: " + node);
-
-        logMessage.innerHTML = "";
-        
-        postData('/ex_playbook', { name: node, command: "hostname" })
-            .then(response => {
-                console.log(response);                
-                logMessage.innerHTML = response.replace(/\n/g, "<br>"); // Reemplaza saltos de línea con etiquetas <br> para el formato HTML
-                logMessage.setAttribute("variant", "success"); // Cambia el estilo del banner según la respuesta
-            })
-            .catch(error => {
-                console.error('Error al enviar datos:', error);
-        });
-
-    });
-
-
-</script>
-
+<script src="/static/script/utils.js"></script>
+<script src="/static/script/main.js"></script>
 
 {% endblock %}

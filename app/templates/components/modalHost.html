@@ -6,7 +6,7 @@
         <div class="col-span-3 rounded-md">
             <div class="flex flex-col space-y-4">
                 {% for host in hosts %}
-                <div id="{{ host._id }}" data-ip="{{ host.ip }}"
+                <div id="{{ host._id }}" data-ip="{{ host.ip }}" data-id="{{ host._id }}"
                     class="flex items-center justify-between px-4 py-2 bg-gray-200">
                     <div>
                         <nord-badge variant="success">Nombre: {{ host.name }}</nord-badge>
@@ -32,31 +32,3 @@
         <nord-button expand id="btnConfirmHost" variant="primary" autofocus>Guardar</nord-button>
     </nord-button-group>
 </nord-modal>
-
-<script>
-    // Eventos para mostrar y cerrar el modal
-    const modalHost = document.getElementById('modalHost');
-    const btnHost = document.getElementById('btnHost');
-    const btnCancelHost = document.getElementById('btnCancelHost');
-    const btnConfirmHost = document.getElementById('btnConfirmHost');
-
-    btnHost.addEventListener("click", e => modalHost.showModal());
-    btnCancelHost.addEventListener("click", () => modalHost.close());
-    btnConfirmHost.addEventListener("click", () => modalHost.close());
-
-    document.querySelectorAll('.btn-agregar-host').forEach(button => {
-        button.addEventListener('click', function () {
-            const ip = this.closest('div').getAttribute('data-ip');
-            const container = document.getElementById('hostBannersContainer');
-            
-            const banner = document.createElement('nord-banner');
-            banner.setAttribute('variant', 'info');
-            banner.innerHTML = `IP: ${ip} <a href="#">Learn more</a>`;            
-            container.appendChild(banner);
-
-            // Eliminar el host del modal
-            if (document.getElementById('bannerHost')) document.getElementById('bannerHost').remove();
-            this.closest('div').remove();
-        });
-    });
-</script>

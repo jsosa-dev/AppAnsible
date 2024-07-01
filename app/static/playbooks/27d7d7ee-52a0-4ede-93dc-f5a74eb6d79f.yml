@@ -1,0 +1,9 @@
+- gather_facts: true
+  hosts: web-inventory
+  name: Obtener versión de Python en el servidor remoto
+  tasks:
+  - command: python --version
+    name: Obtener versión de Python
+    register: python_version
+  - debug:
+      msg: La versión de Python en el servidor es {{ python_version.stdout }}
