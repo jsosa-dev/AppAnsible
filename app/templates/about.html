@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Acerca de este software{% endblock %}
+
+{% block header %}Acerca{% endblock %}
+
+{% block content %}
+
+<nord-card>
+
+    <div class="flex flex-col space-y-6">
+        
+        <div class="flex items-center">
+            <div>
+                <img src="/static/img/ut.png" height="200" width="200" alt="logo-ut">
+            </div>
+            <div>
+                <h1 class="text-3xl">Universidad Tecnológica de San Luis Potosí</h1> 
+            </div>  
+        </div>
+
+        <div class="flex space-x-10">
+            <div>
+                <h1><span class="font-extrabold">Alumnos:</span></h1>
+                <h1>Sosa Azua Jose Guadalupe Sosa Azua</h1>
+                <h1>Vazquez Quistian Melissa</h1> 
+            </div>   
+            <div>
+                <h1><span class="font-extrabold">Profesor:</span> Ing Omar Cruz Gutierrez</h1>
+                <h1><span class="font-extrabold">Materia:</span> Automatizacion de Infraestructura Digital II</h1>
+                <h1><span class="font-extrabold">Asignacion:</span> Producto Parcial II</h1> 
+            </div>    
+        </div>
+
+        <div class="fle">
+            <pre id="fileContent"></pre> 
+        </div>
+
+
+        <div class="flex items-center mt-5">
+            <nord-button id="btnSaveTask" variant="primary">
+                <nord-icon name="interface-checked"></nord-icon> Guardar
+            </nord-button>
+        </div>
+
+    </div>
+
+</nord-card>
+
+
+{% endblock %}

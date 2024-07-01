@@ -13,7 +13,7 @@
                         <nord-badge variant="info">IP: {{ host.ip }}</nord-badge>
                     </div>
                     <nord-button variant="primary" size="sm" class="btn-agregar-host">
-                        <nord-icon name="interface-add-small"></nord-icon> Agregar
+                        <nord-icon name="interface-add-small"></nord-icon> Añadir a la lista
                     </nord-button>
                 </div>
                 {% endfor %}
@@ -28,7 +28,9 @@
     </div>
 
     <nord-button-group slot="footer" variant="spaced">
-        <nord-button expand id="btnCancelHost">Cancelar</nord-button>
-        <nord-button expand id="btnConfirmHost" variant="primary" autofocus>Guardar</nord-button>
+        <nord-button expand id="btnCancelHost">Cerrar</nord-button>
+        <!--
+            <nord-button expand id="btnConfirmHost" variant="primary" autofocus>Guardar</nord-button>
+        -->
     </nord-button-group>
 </nord-modal>

@@ -22,8 +22,13 @@ db = Database()
 collection_host = "hosts"
 collection_task = "tasks"
 
+resp = ""
+
 def index():
     return render_template('index.html')
+
+def about():
+    return render_template('about.html')
 
 def dashboard():
     hosts = list(db.find_all('hosts'))
@@ -96,27 +101,22 @@ def ssh_command():
 UPLOAD_FOLDER = 'static/playbooks'
 ALLOWED_EXTENSIONS = {'yml', 'yaml'} 
 PATH_INVENTORY = 'static/playbooks/host.ini'
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def save_task():
-    content = request.json.get('content')
-    name = request.json.get('name')
-    if content:
-        data = yaml.safe_load(content)
-        filename = str(uuid.uuid4()) + '.yml'
-        db.insert_one(collection_task, {"name": name, "path" : filename})
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        
-        for task in data:
-            if 'hosts' in task:
-                task['hosts'] = 'web-inventory'
-
-        with open(filepath, 'w', encoding='utf-8') as file:
-            yaml.dump(data, file, allow_unicode=True)
-        return jsonify({"message": "Archivo cargado y guardado exitosamente"}), 200
-    return jsonify({"error": "No se proporcionó contenido"}), 400
-
+    name = request.form.get('name')
+    if 'file' in request.files:
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No se seleccionó ningún archivo"}), 400
+        if file:
+            filename = str(uuid.uuid4()) + '.yml'
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            db.insert_one(collection_task, {"name": name, "path": filename})
+            return jsonify({"message": "Archivo cargado y guardado exitosamente"}), 200
+    return jsonify({"error": "No se proporcionó archivo"}), 400
 
 def execute_playbook():
     try:

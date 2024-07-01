@@ -1,0 +1,20 @@
+<nord-modal id="modalConfirm" size="s" aria-labelledby="title">
+    <h2 slot="header" id="title">Confirme la ejecución</h2>
+
+    <div class="flex flex-col items-center justify-center">
+        
+        <img src="/static/img/alert.png" alt="alert">
+        <p class="n-reset">¡Use esta aplicación con precaucion!</p>
+        <p class="n-reset bold text-red-900">Fase Beta</p>
+        
+        <nord-button id="btnPlay" variant="primary">
+            <nord-icon slot="start" name="arrow-expand-right-small"></nord-icon>
+            Ejecutar tareas
+        </nord-button> 
+    </div>
+  
+</nord-modal>
+  
+<script>
+    openModalConfirm.addEventListener("click", e => modalConfirm.showModal())
+</script>

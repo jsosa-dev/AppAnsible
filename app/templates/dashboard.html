@@ -47,10 +47,7 @@
         <nord-card>
             <div class="flex justify-between mb-4">
                 <span>Salida de Ansible</span>
-                <nord-button id="btnPlay" variant="primary" slot="end">
-                    <nord-icon slot="start" name="arrow-expand-right-small"></nord-icon>
-                    Ejecutar tareas
-                </nord-button> 
+                <nord-button variant="primary" id="openModalConfirm" slot="end">Ejecutar</nord-button>
             </div>
 
             <div class="flex flex-col items-center justify-center">
@@ -65,6 +62,8 @@
 
 {% include "components/modalTask.html" %}
 {% include "components/modalHost.html" %}
+{% include "components/modalConfirm.html" %}
+
 
 <script src="/static/script/utils.js"></script>
 <script src="/static/script/main.js"></script>

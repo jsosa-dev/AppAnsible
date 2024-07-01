@@ -42,38 +42,38 @@
          document.getElementById('fileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    fileContent = e.target.result;
-                    document.getElementById('fileContent').textContent = fileContent;
-                };
-                reader.readAsText(file);
+                // Aquí podrías mostrar el nombre del archivo o alguna información relevante si lo deseas
+            console.log('Archivo seleccionado:', file.name);
             }
         });
 
         document.getElementById('btnSaveTask').addEventListener('click', function() {
-            name = document.getElementById("nameTask").value;
-            fetch('/save_task', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    content: fileContent,
-                    name: name
+            const fileInput = document.getElementById('fileInput');
+            const name = document.getElementById("nameTask").value;
+        
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('name', name);
+        
+                fetch('/save_task', {
+                    method: 'POST',
+                    body: formData
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    alert(data.message);
-                } else if (data.error) {
-                    alert(data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                    } else if (data.error) {
+                        alert(data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+                alert('Por favor selecciona un archivo.');
+            }
         });
-
+        
     </script>
 
 {% endblock %}

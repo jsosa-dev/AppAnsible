@@ -4,7 +4,6 @@ let selectedHosts = [];
 const modalHost = document.getElementById('modalHost');
 const btnHost = document.getElementById('btnHost');
 const btnCancelHost = document.getElementById('btnCancelHost');
-const btnConfirmHost = document.getElementById('btnConfirmHost');
 const taskContainer = document.getElementById('taskBannersContainer');
 const hostContainer = document.getElementById('hostBannersContainer');
 const logMessage = document.getElementById("logMessage");
@@ -16,7 +15,6 @@ let path, name = ""
 
 btnHost.addEventListener("click", e => modalHost.showModal());
 btnCancelHost.addEventListener("click", () => modalHost.close());
-btnConfirmHost.addEventListener("click", () => modalHost.close());
 
 document.querySelectorAll('.btn-agregar-host').forEach(button => {
     button.addEventListener('click', function () {
@@ -40,10 +38,6 @@ document.querySelectorAll('.btn-agregar-host').forEach(button => {
 btnTask.addEventListener("click", e => modalTask.showModal());
 btnCancelTask.addEventListener("click", () => modalTask.close());
 
-btnConfirmTask.addEventListener("click", () => {
-    modalTask.close()
-});
-
 document.querySelectorAll('.btn-agregar-task').forEach(button => {
     button.addEventListener('click', function () {
 
@@ -64,6 +58,7 @@ document.querySelectorAll('.btn-agregar-task').forEach(button => {
 
 
 btnPlay.addEventListener("click", e => {
+    modalConfirm.close()
     logMessage.innerHTML = ""; // Limpia el mensaje de registro
     loader.classList.remove('hidden')
     logMessage.classList.add('hidden')
