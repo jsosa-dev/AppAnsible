@@ -15,6 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN apt-get update && \
     apt-get install -y iputils-ping
 
+# Instala sshpass
+RUN apt-get install -y sshpass
+
 # Exponer el puerto que usa la aplicación Flask
 EXPOSE 5000
 
