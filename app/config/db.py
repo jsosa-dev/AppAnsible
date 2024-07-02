@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
 class Database:
-    def __init__(self, uri="mongodb://127.0.0.1:27017/", db_name="ansiblewebdb"):
+    def __init__(self, uri="mongodb://mongo:27017/", db_name="ansiblewebdb"):
         self.client = MongoClient(uri)
         self.db = self.client[db_name]
 
