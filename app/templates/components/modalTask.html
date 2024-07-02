@@ -1,19 +1,16 @@
-<!-- templates/modal.html -->
 <nord-modal id="modalTask" size="l" aria-labelledby="title">
     <h2 slot="header">Configurar Tareas</h2>
     <div class="flex flex-col space-y-4">
     
     {% for task in tasks %}
-
-    <div data-path="{{ task.path }}" data-name="{{ task.name }}" class="flex items-center justify-between px-4 py-2 bg-gray-200">
-        <h1>{{ task.name }}</h1>
-        <nord-button variant="primary" size="sm" class="btn-agregar-task">
-            <nord-icon name="interface-add-small"></nord-icon> Añadir a la list
-        </nord-button>
-    </div>
-    </div>
-
+        <div data-path="{{ task.path }}" data-name="{{ task.name }}" class="flex items-center justify-between px-4 py-2 bg-gray-200">
+            <h1>{{ task.name }}</h1>
+            <nord-button variant="primary" size="sm" class="btn-agregar-task">
+                <nord-icon name="interface-add-small"></nord-icon> Añadir a la lista
+            </nord-button>
+        </div>
     {% endfor %}
+    
     </div>
 
     <nord-button-group slot="footer" variant="spaced">

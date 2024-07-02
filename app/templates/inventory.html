@@ -8,32 +8,54 @@
 
 <nord-card>
 
-    <div class="flex items-center">
-        <nord-icon name="interface-tag" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
-        <nord-input id="nameInput" class="ml-3 flex-grow" placeholder="Nombre | ex￫ nodo1" value=""></nord-input>
+   <div class="flex">
+
+    <div class="flex flex-col w-1/2">
+        
+        <div class="flex items-center">
+            <nord-icon name="interface-tag" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
+            <nord-input id="nameInput" class="ml-3 flex-grow" placeholder="Nombre | ex￫ nodo1" value=""></nord-input>
+        </div>
+    
+        <div class="flex items-center">
+            <nord-icon name="interface-globe" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
+            <nord-input id="ipInput" class="ml-3 flex-grow" placeholder="Direccion IP || ex￫ 10.10.10.10" value=""></nord-input>
+        </div>
+    
+        <div class="flex items-center">
+            <nord-icon name="user-single" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
+            <nord-input id="usernameInput" class="ml-3 flex-grow" placeholder="Usuario || ex￫ root" value=""></nord-input>
+        </div>
+    
+        <div class="flex items-center">
+            <nord-icon name="interface-shield" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
+            <nord-input id="passwordInput" type="password" class="ml-3 flex-grow" placeholder="Contraseña || ex￫ xUf!$e" value=""></nord-input>
+        </div>
+    
+        <div class="flex items-center mt-5">
+            <nord-button id="btnSaveHost" variant="primary">
+                <nord-icon name="interface-checked"></nord-icon> Guardar
+            </nord-button>
+        </div>
+    
     </div>
 
-    <div class="flex items-center">
-        <nord-icon name="interface-globe" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
-        <nord-input id="ipInput" class="ml-3 flex-grow" placeholder="Direccion IP || ex￫ 10.10.10.10" value=""></nord-input>
+    <div class="flex flex-col w-1/2 justify-center">
+        
+        <div class="flex justify-center">
+            <img src="/static/img/pencil.png" alt="" srcset="">
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="flex">
+                <h1 class="text-red-500 text-4xl font-extrabold">Nota</h1>
+            </div>
+            <div class="flex">
+                <h1 class="font-black">El usuario debe tener privilegios elevados</h1>
+            </div>
+        </div>
     </div>
 
-    <div class="flex items-center">
-        <nord-icon name="user-single" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
-        <nord-input id="usernameInput" class="ml-3 flex-grow" placeholder="Usuario || ex￫ root" value=""></nord-input>
-    </div>
-
-    <div class="flex items-center">
-        <nord-icon name="interface-shield" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
-        <nord-input id="passwordInput" type="password" class="ml-3 flex-grow" placeholder="Contraseña || ex￫ xUf!$e" value=""></nord-input>
-    </div>
-
-    <div class="flex items-center mt-5">
-        <nord-button id="btnSaveHost" variant="primary">
-            <nord-icon name="interface-checked"></nord-icon> Guardar
-        </nord-button>
-    </div>
-
+   </div>
 
 </nord-card>
 
