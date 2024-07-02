@@ -29,6 +29,7 @@ def initialize_default_data():
         {"name": "Obtener version de python", "path": "27d7d7ee-52a0-4ede-93dc-f5a74eb6d79f.yml"},
         {"name": "Obtener la hora del servidor", "path": "354a9613-59d8-4b84-bd4c-970fa10d8b1f.yml"},
         {"name": "Obtener hostname del servidor", "path": "e42d12a9-010a-4f70-8d46-8dfc6e6ae338.yml"},
+        {"name": "Obtener lista de usuarios", "path": "5411aa8f-8e3e-4107-9456-0833e6080644.yml"},
     ]
 
     for task_data in default_task:

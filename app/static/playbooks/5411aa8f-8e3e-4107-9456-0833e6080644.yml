@@ -1,0 +1,12 @@
+---
+- name: Obtener la lista de usuarios
+  hosts: web_inventory
+  become: yes
+  tasks:
+    - name: Obtener la lista de usuarios del sistema
+      command: cat /etc/passwd
+      register: usuarios
+
+    - name: Mostrar la lista de usuarios
+      debug:
+        var: usuarios.stdout_lines
