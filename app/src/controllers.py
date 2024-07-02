@@ -210,7 +210,5 @@ def execute_playbook():
         return jsonify({'success': False, 'errores': str(e)})
 
     finally:
-        '''
             if os.path.exists(PATH_INVENTORY):
-            os.remove(PATH_INVENTORY)
-        '''
+                os.remove(PATH_INVENTORY)
