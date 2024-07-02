@@ -30,6 +30,7 @@ def initialize_default_data():
         {"name": "Obtener la hora del servidor", "path": "354a9613-59d8-4b84-bd4c-970fa10d8b1f.yml"},
         {"name": "Obtener hostname del servidor", "path": "e42d12a9-010a-4f70-8d46-8dfc6e6ae338.yml"},
         {"name": "Obtener lista de usuarios", "path": "5411aa8f-8e3e-4107-9456-0833e6080644.yml"},
+        {"name": "Instalar y ejecutar apache (Compatible con Debian y Centos)", "path": "c85e891c-27e2-4982-8cf0-c86a4d356e37.yml"},
     ]
 
     for task_data in default_task:
@@ -209,5 +210,7 @@ def execute_playbook():
         return jsonify({'success': False, 'errores': str(e)})
 
     finally:
-        if os.path.exists(PATH_INVENTORY):
+        '''
+            if os.path.exists(PATH_INVENTORY):
             os.remove(PATH_INVENTORY)
+        '''

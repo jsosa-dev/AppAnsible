@@ -1,0 +1,30 @@
+---
+- name: Instalar y configurar Apache en Debian y CentOS
+  hosts: web_inventory
+  become: yes
+  tasks:
+    - name: Instalar Apache en Debian
+      apt:
+        name: apache2
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Instalar Apache en CentOS
+      yum:
+        name: httpd
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Asegurarse de que Apache está habilitado y corriendo en Debian
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Asegurarse de que Apache está habilitado y corriendo en CentOS
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"
