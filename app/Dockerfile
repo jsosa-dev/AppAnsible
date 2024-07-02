@@ -11,6 +11,10 @@ COPY requirements.txt /main
 # Instala las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Instala herramienta de ping
+RUN apk update && \
+    apk add iputils
+
 # Exponer el puerto que usa la aplicación Flask
 EXPOSE 5000
 
