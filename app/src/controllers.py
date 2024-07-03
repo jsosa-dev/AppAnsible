@@ -11,6 +11,8 @@ import uuid
 from config.db import Database
 from bson import ObjectId
 from dotenv import load_dotenv
+import platform
+import socket
 
 load_dotenv()
 
@@ -67,17 +69,31 @@ def save_host():
     username = request.json.get('username')
     password = request.json.get('password')
     name = request.json.get('name')
+
+    # Ejecutar la función addsshkey y manejar la respuesta
+    result = addsshkey(ip, username, password)
+    
+    if "error" in result:
+        return jsonify({"success": False, "message": result["error"], "details": result.get("details", "")})
+
     encrypted_password = cipher_suite.encrypt(password.encode('utf-8'))
 
-    # Guardar los datos en la base de datos
     db.insert_one(collection_host, {
         "name": name,
         "ip": ip,
         "username": username,
         "password": encrypted_password.decode('utf-8'),
+        "hostname": result["hostname"],
+        "os_info": result["os_info"]
     })
 
-    return jsonify({'success': True, 'message': 'Datos guardados correctamente'})
+    return jsonify({
+        "success": True, 
+        "message": "Datos guardados correctamente",
+        "hostname": result["hostname"],
+        "os_info": result["os_info"]
+    })
+
 
 def ssh_command():
     # Obtener el nombre del cuerpo de la solicitud POST
@@ -172,7 +188,7 @@ def execute_playbook():
                     encrypted_password = db_host.get('password')
                     decrypted_password = cipher_suite.decrypt(encrypted_password.encode('utf-8')).decode('utf-8')
                     #password = db_host.get('password', 'root')  # contraseña por defecto si no se encuentra
-                    host_file.write(f"{ip} ansible_user={username} ansible_ssh_pass={decrypted_password}\n")        
+                    host_file.write(f"{ip} ansible_user={username} ansible_ssh_pass={decrypted_password}\n")
 
                 else:
                     return jsonify({"error": f"Host with ID {host_id} not found"}), 404
@@ -212,3 +228,66 @@ def execute_playbook():
     finally:
             if os.path.exists(PATH_INVENTORY):
                 os.remove(PATH_INVENTORY)
+
+def addsshkey(dip, dusername, dpassword):
+    try:
+        # Generar la llave SSH
+        key_path = os.path.expanduser('~/.ssh/id_rsa')
+        if not os.path.exists(key_path):
+            try:
+                subprocess.run(['ssh-keygen', '-t', 'rsa', '-N', '', '-f', key_path], check=True)
+            except subprocess.CalledProcessError as e:
+                return {"error": "Error al generar la llave SSH", "details": str(e)}
+
+        # Leer la llave pública
+        try:
+            with open(key_path + '.pub', 'r') as pub_key_file:
+                pub_key = pub_key_file.read()
+        except IOError as e:
+            return {"error": "Error al leer la llave pública", "details": str(e)}
+
+        # Agregar la huella digital del host remoto a los hosts conocidos
+        known_hosts_path = os.path.expanduser('~/.ssh/known_hosts')
+        try:
+            host_key = subprocess.check_output(['ssh-keyscan', dip])
+            with open(known_hosts_path, 'a') as known_hosts_file:
+                known_hosts_file.write(host_key.decode())
+        except subprocess.CalledProcessError as e:
+            return {"error": "Error al escanear la huella digital del host remoto", "details": str(e)}
+        except IOError as e:
+            return {"error": "Error al escribir en el archivo known_hosts", "details": str(e)}
+
+        # Conectar al host remoto y copiar la llave
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(dip, username=dusername, password=dpassword)
+        except paramiko.AuthenticationException as e:
+            return {"error": "Error de autenticación SSH", "details": str(e)}
+        except paramiko.SSHException as e:
+            return {"error": "Error en la conexión SSH", "details": str(e)}
+
+        try:
+            # Copiar la llave pública al archivo authorized_keys del host remoto
+            ssh.exec_command(f'echo "{pub_key}" >> ~/.ssh/authorized_keys')
+
+            # Obtener el hostname y el sistema operativo
+            stdin, stdout, stderr = ssh.exec_command('hostname')
+            hostname = stdout.read().strip().decode()
+
+            stdin, stdout, stderr = ssh.exec_command('uname -a')
+            os_info = stdout.read().strip().decode()
+        except paramiko.SSHException as e:
+            return {"error": "Error al ejecutar comandos remotos", "details": str(e)}
+        finally:
+            # Cerrar la conexión
+            ssh.close()
+
+        return {
+            "success": "Llave copiada exitosamente",
+            "hostname": hostname,
+            "os_info": os_info
+        }
+
+    except Exception as e:
+        return {"error": "Error desconocido", "details": str(e)}

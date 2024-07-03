@@ -7,60 +7,62 @@
 {% block content %}
 
 <nord-card>
-
-   <div class="flex">
-
-    <div class="flex flex-col w-1/2">
-        
-        <div class="flex items-center">
-            <nord-icon name="interface-tag" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
-            <nord-input id="nameInput" class="ml-3 flex-grow" placeholder="Nombre | ex￫ nodo1" value=""></nord-input>
-        </div>
-    
-        <div class="flex items-center">
-            <nord-icon name="interface-globe" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
-            <nord-input id="ipInput" class="ml-3 flex-grow" placeholder="Direccion IP || ex￫ 10.10.10.10" value=""></nord-input>
-        </div>
-    
-        <div class="flex items-center">
-            <nord-icon name="user-single" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
-            <nord-input id="usernameInput" class="ml-3 flex-grow" placeholder="Usuario || ex￫ root" value=""></nord-input>
-        </div>
-    
-        <div class="flex items-center">
-            <nord-icon name="interface-shield" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
-            <nord-input id="passwordInput" type="password" class="ml-3 flex-grow" placeholder="Contraseña || ex￫ xUf!$e" value=""></nord-input>
-        </div>
-    
-        <div class="flex items-center mt-5">
-            <nord-button id="btnSaveHost" variant="primary">
-                <nord-icon name="interface-checked"></nord-icon> Guardar
-            </nord-button>
-        </div>
-    
-    </div>
-
-    <div class="flex flex-col w-1/2 justify-center">
-        
-        <div class="flex justify-center">
-            <img src="/static/img/pencil.png" alt="" srcset="">
-        </div>
-        <div class="flex flex-col items-center">
-            <div class="flex">
-                <h1 class="text-red-500 text-4xl font-extrabold">Nota</h1>
+    <div class="flex">
+        <div class="flex flex-col w-1/2">
+            <div class="flex items-center">
+                <nord-icon name="interface-tag" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
+                <nord-input id="nameInput" class="ml-3 flex-grow" placeholder="Nombre | ex￫ nodo1" value=""></nord-input>
             </div>
-            <div class="flex">
-                <h1 class="font-black">El usuario debe tener privilegios elevados</h1>
+            <div class="flex items-center">
+                <nord-icon name="interface-globe" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
+                <nord-input id="ipInput" class="ml-3 flex-grow" placeholder="Direccion IP || ex￫ 10.10.10.10" value=""></nord-input>
+            </div>
+            <div class="flex items-center">
+                <nord-icon name="user-single" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
+                <nord-input id="usernameInput" class="ml-3 flex-grow" placeholder="Usuario || ex￫ root" value=""></nord-input>
+            </div>
+            <div class="flex items-center">
+                <nord-icon name="interface-shield" class="text-gray-400 h-6 w-6 mt-6"></nord-icon>
+                <nord-input id="passwordInput" type="password" class="ml-3 flex-grow" placeholder="Contraseña || ex￫ xUf!$e" value=""></nord-input>
+            </div>
+            <div class="flex items-center mt-5">
+                <nord-button id="btnSaveHost" variant="primary">
+                    <nord-icon name="interface-checked"></nord-icon> Guardar
+                </nord-button>
+            </div>
+        </div>
+        <div class="flex flex-col w-1/2 justify-center">
+            <div class="flex justify-center">
+                <img src="/static/img/pencil.png" alt="" srcset="">
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="flex">
+                    <h1 class="text-red-500 text-4xl font-extrabold">Nota</h1>
+                </div>
+                <div class="flex">
+                    <h1 class="font-black">El usuario debe tener privilegios elevados</h1>
+                </div>
             </div>
         </div>
     </div>
-
-   </div>
-
 </nord-card>
 
+<nord-modal id="modalMessage" size="s" aria-labelledby="title">
+    <h2 slot="header" id="title">Datos Guardados Correctamente</h2>
+    <p class="n-reset"><span class="font-black">Hostname: </span> <span id="modalHostname"></span></p>
+    <p class="n-reset"><span class="font-black">Informacion del Sistema: </span><span id="modalinfo"></span></p>
+    <p class="n-reset"><span class="font-black text-red-900">Atencion: </span><span> Se ha generado una par de claves SSH y la huella digital en el host remoto ahora este contenedor de Docker podrá conectarse automaticamente.</span></p>
+    <nord-button-group slot="footer" variant="spaced">
+        <nord-button expand id="confirmButton" variant="primary" autofocus>Cerrar</nord-button>
+    </nord-button-group>
+</nord-modal>
+
 <script>
-    
+    let hostname = "null";
+    let so = "null";
+
+    confirmButton.addEventListener("click", () => modalMessage.close())
+
     function getHostValues() {
         return {
             ip: document.getElementById('ipInput').value,
@@ -86,8 +88,13 @@
 
         postData('/save_host', data)
         .then(response => {
+            console.log(response)
             if (response.success) {
-                alert('Datos guardados correctamente!');
+                hostname = response.hostname;
+                info = response.os_info;
+                document.getElementById('modalHostname').innerText = hostname;
+                document.getElementById('modalinfo').innerText = info;
+                modalMessage.showModal();
             } else {
                 alert('Error al guardar los datos: ' + response.message);
             }
@@ -97,8 +104,6 @@
             alert('Error al guardar los datos');
         });
     });
-
-   
 </script>
 
 {% endblock %}
