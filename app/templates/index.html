@@ -6,9 +6,29 @@
 
 {% block content %}
 <nord-card>
-    <h2 slot="header">Card heaing</h2>
-    <nord-banner variant="success">
-        Your order has been shipped and will arrive on May 27th. <a href="#">Track order</a>.
+    <h2 slot="header">Acerca de esta aplicación</h2>
+    <nord-banner variant="info" class="mt-5">
+        <p>Este software esta diseñado para automatizar la 
+            ejecucion de tareas sobre distintos equipos de red usando Ansible y Flask</p>
     </nord-banner>
+
+    <nord-banner variant="danger" class="mt-5">
+        <p>Use este software con precaución, se encuentra en fase beta y podria ser potencialmente 
+            peligroso para su infraestructura de red</p>
+    </nord-banner>
+
+    <nord-banner variant="success" class="mt-5">
+        <div class="flex flex-col">
+        <span>Librerias utilizadas en esta aplicación</span>
+        <span class="font-black">Flask</span>
+        <span class="font-black">API de Ansible</span>
+        <span class="font-black">Tailwind CSS</span>
+        <span class="font-black">Nord Elements</span>
+        <span class="font-black">Nord Icons</span>
+
+        <span class="font-black">Mongo DB</span>
+        </div>
+    </nord-banner>
+
 </nord-card>
 {% endblock %}
